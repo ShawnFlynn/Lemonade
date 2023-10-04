@@ -43,6 +43,7 @@ class MainActivity : ComponentActivity() {
 fun LemonApp() {
 
     var currentStep by rememberSaveable { mutableIntStateOf(1) }
+    val squeezeCount = 10
 
     Surface(
         modifier = Modifier.fillMaxSize(),
@@ -60,19 +61,19 @@ fun LemonApp() {
                 description = stringResource(R.string.lemon_tree_string)
                 click = { currentStep++ }
             }
-            7 -> {  // Serve
+            (2+squeezeCount) -> {  // Serve
                 fieldText = stringResource(R.string.tap_lemonade)
                 imagePainter = painterResource(R.drawable.lemon_drink)
                 description = stringResource(R.string.glass_of_lemonade)
                 click = { currentStep++ }
             }
-            8 -> {  // Restart
+            (3+squeezeCount) -> {  // Restart
                 fieldText = stringResource(R.string.tap_empty_glass)
                 imagePainter = painterResource(R.drawable.lemon_restart)
                 description = stringResource(R.string.empty_glass)
                 click = { currentStep = 1 }
             }
-            else -> {  // Squeeze x5
+            else -> {  // Squeeze x:squeezeCount
                 fieldText = stringResource(R.string.tap_lemon)
                 imagePainter = painterResource(R.drawable.lemon_squeeze)
                 description = stringResource(R.string.lemon_string)
