@@ -43,7 +43,7 @@ class MainActivity : ComponentActivity() {
 fun LemonApp() {
 
     var currentStep by rememberSaveable { mutableIntStateOf(1) }
-    val squeezeCount = 10
+    val squeezeCount = 5
 
     Surface(
         modifier = Modifier.fillMaxSize(),
