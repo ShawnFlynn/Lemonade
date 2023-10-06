@@ -39,6 +39,8 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+val DEBUG = true
+
 @Composable
 fun LemonApp() {
 
@@ -106,24 +108,43 @@ fun MyColumn(
         verticalArrangement = Arrangement.Center,
         modifier = Modifier.fillMaxSize()
     ){
-//        Text(text = fieldText)
-        Text(text = "$fieldText  $currentStep")  // Debug
+        if (DEBUG)
+            TextStringDebug(fieldText = fieldText,
+                            currentStep = currentStep)  // Debug
+        else
+          TextString(fieldText = fieldText)
+
         Spacer(modifier = Modifier.height(16.dp))
-        Image(
+
+        ImageDrawable(
             painter = imagePainter,
-            contentDescription = description,
-            modifier = Modifier
-                .wrapContentSize()
-                .clickable { click() }
+            description = description,
+            click
         )
     }  // end of Column
 }  // end of myColumn()
 
 
-@Preview(showBackground = true)
 @Composable
-fun DefaultPreview() {
-    LemonadeTheme {
-        LemonApp()
-    }
+fun TextString(fieldText: String) {
+    Text(text = fieldText)
+}
+
+@Composable
+fun TextStringDebug(fieldText: String,
+                    currentStep: Int) {
+    Text(text = "$fieldText  $currentStep")
+}
+
+@Composable
+fun ImageDrawable(painter: Painter,
+                  description: String,
+                  click: () -> Unit) {
+//TODO: why constant recompose?
+    Image(
+        painter = painter,
+        contentDescription = description,
+        modifier = Modifier.wrapContentSize()
+                           .clickable { click() }
+    )
 }
