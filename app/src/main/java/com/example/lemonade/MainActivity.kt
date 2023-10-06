@@ -81,8 +81,8 @@ fun LemonApp() {
             }
         }
 
-        // Call the myColumn() function to display
-       MyColumn(
+        // Call the myColumn() function to display the step
+        MyColumn(
             fieldText,
             imagePainter,
             description,
@@ -107,7 +107,7 @@ fun MyColumn(
         modifier = Modifier.fillMaxSize()
     ){
 //        Text(text = fieldText)
-        Text(text = "$fieldText  $currentStep")
+        Text(text = "$fieldText  $currentStep")  // Debug
         Spacer(modifier = Modifier.height(16.dp))
         Image(
             painter = imagePainter,
