@@ -4,11 +4,13 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material.MaterialTheme
@@ -21,10 +23,11 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.example.lemonade.ui.theme.LemonadeTheme
 
@@ -39,13 +42,13 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-val DEBUG = true
+const val DEBUG = true
 
 @Composable
 fun LemonApp() {
 
     var currentStep by rememberSaveable { mutableIntStateOf(1) }
-    val squeezeCount = 5
+    var squeezeCount by rememberSaveable { mutableIntStateOf(0) }
 
     Surface(
         modifier = Modifier.fillMaxSize(),
@@ -63,6 +66,14 @@ fun LemonApp() {
                 description = stringResource(R.string.lemon_tree_string)
                 click = { currentStep++ }
             }
+            2 -> {
+                squeezeCount = (1..6).random()
+                fieldText = stringResource(R.string.tap_lemon)
+                imagePainter = painterResource(R.drawable.lemon_squeeze)
+                description = stringResource(R.string.lemon_string)
+                click = { currentStep++ }
+            }
+            //TODO - 2+squeezeCount(=0) = 2
             (2+squeezeCount) -> {  // Serve
                 fieldText = stringResource(R.string.tap_lemonade)
                 imagePainter = painterResource(R.drawable.lemon_drink)
@@ -89,11 +100,13 @@ fun LemonApp() {
             imagePainter,
             description,
             currentStep,
+            squeezeCount,
             click
         )
 
     }  // end of Surface
 }  // end of LemonApp()
+
 
 @Composable
 fun MyColumn(
@@ -101,39 +114,63 @@ fun MyColumn(
     imagePainter: Painter,
     description: String,
     currentStep: Int,
+    squeezeCount: Int,
     click: () -> Unit)
 {
+
+    // "LEMONADE" title bar w/yellow background
+    Column (
+        horizontalAlignment = Alignment.CenterHorizontally,
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        TextString(
+            fieldText = "LEMONADE",
+            modifier = Modifier.fillMaxWidth()
+                               .background(Color.Yellow)
+        )
+        if (DEBUG)
+            TextStringDebug(step = currentStep, count = squeezeCount)
+    }
+
     Column (
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
         modifier = Modifier.fillMaxSize()
     ){
-        if (DEBUG)
-            TextStringDebug(fieldText = fieldText,
-                            currentStep = currentStep)  // Debug
-        else
-          TextString(fieldText = fieldText)
-
-        Spacer(modifier = Modifier.height(16.dp))
 
         ImageDrawable(
             painter = imagePainter,
             description = description,
             click
         )
+
+        Spacer(modifier = Modifier.height(16.dp))
+
+        TextString(fieldText = fieldText)
+
     }  // end of Column
 }  // end of myColumn()
 
 
 @Composable
-fun TextString(fieldText: String) {
-    Text(text = fieldText)
+fun TextString(fieldText: String,
+               modifier: Modifier = Modifier,
+               alignment: TextAlign = TextAlign.Center) {
+
+    Text(
+        text = fieldText,
+        textAlign = alignment,
+        modifier = modifier
+    )
 }
 
 @Composable
-fun TextStringDebug(fieldText: String,
-                    currentStep: Int) {
-    Text(text = "$fieldText  $currentStep")
+fun TextStringDebug(step: Int, count: Int) {
+    val squeezes = step - 2
+    when (step) {
+        in 2..(count+2) -> Text(text = "currentStep = $step : squeezeCount = $squeezes/$count")
+        else -> Text(text = "currentStep = $step")
+    }
 }
 
 @Composable
