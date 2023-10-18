@@ -47,7 +47,7 @@ const val DEBUG = true
 @Composable
 fun LemonApp() {
 
-    var currentStep by rememberSaveable { mutableIntStateOf(1) }
+    var currentStep  by rememberSaveable { mutableIntStateOf(1) }
     var squeezeCount by rememberSaveable { mutableIntStateOf(0) }
 
     Surface(
@@ -61,19 +61,12 @@ fun LemonApp() {
 
         when (currentStep) {
             1 -> {  // Start
+                squeezeCount = (1..6).random()
                 fieldText = stringResource(R.string.tap_lemon_tree)
                 imagePainter = painterResource(R.drawable.lemon_tree)
                 description = stringResource(R.string.lemon_tree_string)
                 click = { currentStep++ }
             }
-            2 -> {
-                squeezeCount = (1..6).random()
-                fieldText = stringResource(R.string.tap_lemon)
-                imagePainter = painterResource(R.drawable.lemon_squeeze)
-                description = stringResource(R.string.lemon_string)
-                click = { currentStep++ }
-            }
-            //TODO - 2+squeezeCount(=0) = 2
             (2+squeezeCount) -> {  // Serve
                 fieldText = stringResource(R.string.tap_lemonade)
                 imagePainter = painterResource(R.drawable.lemon_drink)
@@ -86,7 +79,7 @@ fun LemonApp() {
                 description = stringResource(R.string.empty_glass)
                 click = { currentStep = 1 }
             }
-            else -> {  // Squeeze x:squeezeCount
+            else -> {  // Squeeze  = squeezeCount + 1
                 fieldText = stringResource(R.string.tap_lemon)
                 imagePainter = painterResource(R.drawable.lemon_squeeze)
                 description = stringResource(R.string.lemon_string)
@@ -177,7 +170,7 @@ fun TextStringDebug(step: Int, count: Int) {
 fun ImageDrawable(painter: Painter,
                   description: String,
                   click: () -> Unit) {
-//TODO: why constant recompose?
+    //TODO: why constant recompose?
     Image(
         painter = painter,
         contentDescription = description,
