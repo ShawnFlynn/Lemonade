@@ -31,6 +31,8 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.example.lemonade.ui.theme.LemonadeTheme
 
+const val DEBUG = true
+
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -42,7 +44,6 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-const val DEBUG = true
 
 @Composable
 fun LemonApp() {
@@ -54,47 +55,65 @@ fun LemonApp() {
         modifier = Modifier.fillMaxSize(),
         color = MaterialTheme.colors.background
     ) {
-        val fieldText: String
-        val description: String
-        val imagePainter: Painter
-        val click: () -> Unit
+        var fieldText: String = ""
+        var description: String = ""
+        var imagePainter: Painter? = null
+        var click: () -> Unit = { currentStep++ }
 
         when (currentStep) {
             1 -> {  // Start
-                squeezeCount = (1..6).random()
+                squeezeCount = (1..4).random()
                 fieldText = stringResource(R.string.tap_lemon_tree)
                 imagePainter = painterResource(R.drawable.lemon_tree)
                 description = stringResource(R.string.lemon_tree_string)
-                click = { currentStep++ }
             }
-            (2+squeezeCount) -> {  // Serve
-                fieldText = stringResource(R.string.tap_lemonade)
+            2 -> {  // Squeeze
+                fieldText = stringResource(R.string.tap_lemon)
+                imagePainter = painterResource(R.drawable.lemon_squeeze)
+                description = stringResource(R.string.lemon_string)
+
+                click = if (squeezeCount == 1) {
+                    { currentStep++ }     // clicking increases currentStep
+                } else {
+                    { squeezeCount-- }    // clicking reduces squeezeCount
+                }
+
+                // TODO - why does this hang?
+//                while (squeezeCount > 1) {
+//                    MyColumn(
+//                        fieldText = fieldText,
+//                        imagePainter = imagePainter,
+//                        description = description,
+//                        currentStep = currentStep,
+//                        squeezeCount = squeezeCount,
+//                        click = click
+//                    )
+//                }
+            }
+            3 -> {  // Serve
+                fieldText = stringResource(R.string.glass_of_lemonade)
                 imagePainter = painterResource(R.drawable.lemon_drink)
                 description = stringResource(R.string.glass_of_lemonade)
-                click = { currentStep++ }
             }
-            (3+squeezeCount) -> {  // Restart
+            4 -> {  // Restart
                 fieldText = stringResource(R.string.tap_empty_glass)
                 imagePainter = painterResource(R.drawable.lemon_restart)
                 description = stringResource(R.string.empty_glass)
                 click = { currentStep = 1 }
             }
-            else -> {  // Squeeze  = squeezeCount + 1
-                fieldText = stringResource(R.string.tap_lemon)
-                imagePainter = painterResource(R.drawable.lemon_squeeze)
-                description = stringResource(R.string.lemon_string)
-                click = { currentStep++ }
+            else -> {
+                // Nothing to do here
             }
         }
 
         // Call the myColumn() function to display the step
         MyColumn(
-            fieldText,
-            imagePainter,
-            description,
-            currentStep,
-            squeezeCount,
-            click
+            fieldText = fieldText,
+            imagePainter = imagePainter,
+            description = description,
+            currentStep = currentStep,
+            squeezeCount = squeezeCount,
+            click = click
         )
 
     }  // end of Surface
@@ -104,38 +123,48 @@ fun LemonApp() {
 @Composable
 fun MyColumn(
     fieldText: String,
-    imagePainter: Painter,
+    imagePainter: Painter?,
     description: String,
     currentStep: Int,
     squeezeCount: Int,
     click: () -> Unit)
 {
 
+
     // "LEMONADE" title bar w/yellow background
+    // optional "DEBUG" text
     Column (
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier.fillMaxWidth()
     ) {
+
+        // "LEMONADE" title
         TextString(
             fieldText = "LEMONADE",
             modifier = Modifier.fillMaxWidth()
-                               .background(Color.Yellow)
+                .background(MaterialTheme.colors.primary)
         )
+
+        // DEBUG text
         if (DEBUG)
             TextStringDebug(step = currentStep, count = squeezeCount)
     }
 
+    // ImagePainter()
+    // Text(fieldtext)
     Column (
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
         modifier = Modifier.fillMaxSize()
+                           .clickable { click() }
     ){
 
-        ImageDrawable(
-            painter = imagePainter,
-            description = description,
-            click
-        )
+        if (imagePainter != null) {
+            ImageDrawable(
+                painter = imagePainter,
+                description = description
+            )
+        }
 
         Spacer(modifier = Modifier.height(16.dp))
 
@@ -159,22 +188,20 @@ fun TextString(fieldText: String,
 
 @Composable
 fun TextStringDebug(step: Int, count: Int) {
-    val squeezes = step - 2
     when (step) {
-        in 2..(count+2) -> Text(text = "currentStep = $step : squeezeCount = $squeezes/$count")
+        2 -> Text(text = "currentStep = $step : squeezeCount = $count")
         else -> Text(text = "currentStep = $step")
     }
 }
 
 @Composable
 fun ImageDrawable(painter: Painter,
-                  description: String,
-                  click: () -> Unit) {
-    //TODO: why constant recompose?
+                  description: String)
+{
     Image(
         painter = painter,
         contentDescription = description,
         modifier = Modifier.wrapContentSize()
-                           .clickable { click() }
+                            .background(MaterialTheme.colors.secondary)
     )
 }
