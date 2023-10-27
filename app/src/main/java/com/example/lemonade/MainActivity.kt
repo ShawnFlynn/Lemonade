@@ -1,6 +1,7 @@
 package com.example.lemonade
 
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
@@ -23,8 +24,6 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
@@ -44,73 +43,67 @@ class MainActivity : ComponentActivity() {
     }
 }
 
-
 @Composable
 fun LemonApp() {
 
     var currentStep  by rememberSaveable { mutableIntStateOf(1) }
     var squeezeCount by rememberSaveable { mutableIntStateOf(0) }
 
+    val stepUp:    () -> Unit = { currentStep++ }
+    val countDown: () -> Unit = { squeezeCount-- }
+    val restart:   () -> Unit = { currentStep = 1 }
+
+
     Surface(
         modifier = Modifier.fillMaxSize(),
         color = MaterialTheme.colors.background
     ) {
-        var fieldText: String = ""
-        var description: String = ""
-        var imagePainter: Painter? = null
-        var click: () -> Unit = { currentStep++ }
+        var actionID: Int = 0
+        var descriptionID: Int = 0
+        var imageID: Int = 0
+        var click: () -> Unit = stepUp
+
 
         when (currentStep) {
             1 -> {  // Start
+                actionID = R.string.tap_lemon_tree
+                imageID = R.drawable.lemon_tree
+                descriptionID = R.string.lemon_tree_string
+
                 squeezeCount = (1..4).random()
-                fieldText = stringResource(R.string.tap_lemon_tree)
-                imagePainter = painterResource(R.drawable.lemon_tree)
-                description = stringResource(R.string.lemon_tree_string)
             }
             2 -> {  // Squeeze
-                fieldText = stringResource(R.string.tap_lemon)
-                imagePainter = painterResource(R.drawable.lemon_squeeze)
-                description = stringResource(R.string.lemon_string)
+                actionID = R.string.tap_lemon
+                imageID = R.drawable.lemon_squeeze
+                descriptionID = R.string.lemon_string
 
-                click = if (squeezeCount == 1) {
-                    { currentStep++ }     // clicking increases currentStep
-                } else {
-                    { squeezeCount-- }    // clicking reduces squeezeCount
-                }
-
-                // TODO - why does this hang?
-//                while (squeezeCount > 1) {
-//                    MyColumn(
-//                        fieldText = fieldText,
-//                        imagePainter = imagePainter,
-//                        description = description,
-//                        currentStep = currentStep,
-//                        squeezeCount = squeezeCount,
-//                        click = click
-//                    )
-//                }
+                // Set click lambda
+                click = if (squeezeCount == 1)  stepUp else countDown
             }
             3 -> {  // Serve
-                fieldText = stringResource(R.string.glass_of_lemonade)
-                imagePainter = painterResource(R.drawable.lemon_drink)
-                description = stringResource(R.string.glass_of_lemonade)
+                actionID = R.string.glass_of_lemonade
+                imageID = R.drawable.lemon_drink
+                descriptionID = R.string.glass_of_lemonade
             }
             4 -> {  // Restart
-                fieldText = stringResource(R.string.tap_empty_glass)
-                imagePainter = painterResource(R.drawable.lemon_restart)
-                description = stringResource(R.string.empty_glass)
-                click = { currentStep = 1 }
+                actionID = R.string.tap_empty_glass
+                imageID = R.drawable.lemon_restart
+                descriptionID = R.string.empty_glass
+
+                // TODO - use a common stepUp w/ Mod 4?
+                click =  restart
             }
             else -> {
                 // Nothing to do here
+                Log.e("when{} else{}", "Invalid currentStep = $currentStep")
             }
         }
 
         // Call the myColumn() function to display the step
         MyColumn(
-            fieldText = fieldText,
-            imagePainter = imagePainter,
-            description = description,
+            textID = actionID,
+            imageID = imageID,
+            descriptionID = descriptionID,
             currentStep = currentStep,
             squeezeCount = squeezeCount,
             click = click
@@ -122,9 +115,9 @@ fun LemonApp() {
 
 @Composable
 fun MyColumn(
-    fieldText: String,
-    imagePainter: Painter?,
-    description: String,
+    textID: Int,
+    imageID: Int,
+    descriptionID: Int,
     currentStep: Int,
     squeezeCount: Int,
     click: () -> Unit)
@@ -140,9 +133,9 @@ fun MyColumn(
 
         // "LEMONADE" title
         TextString(
-            fieldText = "LEMONADE",
+            textID = R.string.app_name,
             modifier = Modifier.fillMaxWidth()
-                .background(MaterialTheme.colors.primary)
+                               .background(MaterialTheme.colors.primary)
         )
 
         // DEBUG text
@@ -150,37 +143,33 @@ fun MyColumn(
             TextStringDebug(step = currentStep, count = squeezeCount)
     }
 
-    // ImagePainter()
-    // Text(fieldtext)
     Column (
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
         modifier = Modifier.fillMaxSize()
-                           .clickable { click() }
     ){
 
-        if (imagePainter != null) {
-            ImageDrawable(
-                painter = imagePainter,
-                description = description
-            )
-        }
+        ImageDrawable(
+            imageID = imageID,
+            descriptionID = descriptionID,
+            click =  click
+        )
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        TextString(fieldText = fieldText)
+        TextString(textID = textID)
 
     }  // end of Column
 }  // end of myColumn()
 
 
 @Composable
-fun TextString(fieldText: String,
+fun TextString(textID: Int,
                modifier: Modifier = Modifier,
                alignment: TextAlign = TextAlign.Center) {
 
     Text(
-        text = fieldText,
+        text = stringResource(textID),
         textAlign = alignment,
         modifier = modifier
     )
@@ -195,13 +184,15 @@ fun TextStringDebug(step: Int, count: Int) {
 }
 
 @Composable
-fun ImageDrawable(painter: Painter,
-                  description: String)
+fun ImageDrawable(imageID: Int,
+                  descriptionID: Int,
+                  click: () -> Unit)
 {
     Image(
-        painter = painter,
-        contentDescription = description,
+        painter = painterResource(imageID),
+        contentDescription = stringResource(descriptionID),
         modifier = Modifier.wrapContentSize()
-                            .background(MaterialTheme.colors.secondary)
+                           .background(MaterialTheme.colors.secondary)
+                           .clickable { click() }
     )
 }
