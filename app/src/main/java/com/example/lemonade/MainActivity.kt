@@ -48,17 +48,12 @@ fun LemonApp() {
     var currentStep  by rememberSaveable { mutableIntStateOf(1) }
     var squeezeCount by rememberSaveable { mutableIntStateOf(0) }
 
-//    val stepUp:    () -> Unit = { ((currentStep++) % 4) }     // Doesn't work
-//    val stepUp:    () -> Unit = { if (currentStep++ == 5) 1 else currentStep }  // Doesn't work
-    // TODO - stepUp = { currentStep++ % 4 } ?
-    val stepUp:    () -> Unit = { currentStep++ }
+    val stepUp:    () -> Unit = { if (currentStep == 4) currentStep = 1 else currentStep++ }
     val countDown: () -> Unit = { squeezeCount-- }
-    val restart:   () -> Unit = { currentStep = 1 }
 
     val onClick:   () -> Unit = {
         when (currentStep) {
             2 -> if (squeezeCount == 1) stepUp() else countDown()
-            4 -> restart()
             else -> stepUp()
         }
     }
@@ -67,6 +62,7 @@ fun LemonApp() {
     val descriptionID: Int
     val imageID: Int
 
+    // Setup step specific data
     when (currentStep) {
         1 -> {  // Start
             actionID = R.string.tap_lemon_tree
@@ -92,6 +88,7 @@ fun LemonApp() {
         }
     }
 
+    // Execute composables
     Surface(
         modifier = Modifier.fillMaxSize(),
         color = MaterialTheme.colors.background
@@ -120,7 +117,6 @@ fun MyColumn(
     squeezeCount: Int,
     click: () -> Unit
 ) {
-
 
     // "LEMONADE" title bar w/yellow background
     // optional "DEBUG" text
