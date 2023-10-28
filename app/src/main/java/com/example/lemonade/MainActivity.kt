@@ -1,7 +1,6 @@
 package com.example.lemonade
 
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.Image
@@ -49,64 +48,63 @@ fun LemonApp() {
     var currentStep  by rememberSaveable { mutableIntStateOf(1) }
     var squeezeCount by rememberSaveable { mutableIntStateOf(0) }
 
+//    val stepUp:    () -> Unit = { ((currentStep++) % 4) }     // Doesn't work
+//    val stepUp:    () -> Unit = { if (currentStep++ == 5) 1 else currentStep }  // Doesn't work
+    // TODO - stepUp = { currentStep++ % 4 } ?
     val stepUp:    () -> Unit = { currentStep++ }
     val countDown: () -> Unit = { squeezeCount-- }
     val restart:   () -> Unit = { currentStep = 1 }
 
+    val onClick:   () -> Unit = {
+        when (currentStep) {
+            2 -> if (squeezeCount == 1) stepUp() else countDown()
+            4 -> restart()
+            else -> stepUp()
+        }
+    }
+
+    val actionID: Int
+    val descriptionID: Int
+    val imageID: Int
+
+    when (currentStep) {
+        1 -> {  // Start
+            actionID = R.string.tap_lemon_tree
+            imageID = R.drawable.lemon_tree
+            descriptionID = R.string.lemon_tree_string
+
+            squeezeCount = (1..4).random()
+        }
+        3 -> {  // Serve
+            actionID = R.string.glass_of_lemonade
+            imageID = R.drawable.lemon_drink
+            descriptionID = R.string.glass_of_lemonade
+        }
+        4 -> {  // Restart
+            actionID = R.string.tap_empty_glass
+            imageID = R.drawable.lemon_restart
+            descriptionID = R.string.empty_glass
+        }
+        else -> {  // Squeeze (2)
+            actionID = R.string.tap_lemon
+            imageID = R.drawable.lemon_squeeze
+            descriptionID = R.string.lemon_string
+        }
+    }
 
     Surface(
         modifier = Modifier.fillMaxSize(),
         color = MaterialTheme.colors.background
     ) {
-        var actionID: Int = 0
-        var descriptionID: Int = 0
-        var imageID: Int = 0
-        var click: () -> Unit = stepUp
 
-
-        when (currentStep) {
-            1 -> {  // Start
-                actionID = R.string.tap_lemon_tree
-                imageID = R.drawable.lemon_tree
-                descriptionID = R.string.lemon_tree_string
-
-                squeezeCount = (1..4).random()
-            }
-            2 -> {  // Squeeze
-                actionID = R.string.tap_lemon
-                imageID = R.drawable.lemon_squeeze
-                descriptionID = R.string.lemon_string
-
-                // Set click lambda
-                click = if (squeezeCount == 1)  stepUp else countDown
-            }
-            3 -> {  // Serve
-                actionID = R.string.glass_of_lemonade
-                imageID = R.drawable.lemon_drink
-                descriptionID = R.string.glass_of_lemonade
-            }
-            4 -> {  // Restart
-                actionID = R.string.tap_empty_glass
-                imageID = R.drawable.lemon_restart
-                descriptionID = R.string.empty_glass
-
-                // TODO - use a common stepUp w/ Mod 4?
-                click =  restart
-            }
-            else -> {
-                // Nothing to do here
-                Log.e("when{} else{}", "Invalid currentStep = $currentStep")
-            }
-        }
-
-        // Call the myColumn() function to display the step
+        // MyColumn() function to display the step data
         MyColumn(
             textID = actionID,
             imageID = imageID,
             descriptionID = descriptionID,
             currentStep = currentStep,
             squeezeCount = squeezeCount,
-            click = click
+            click = onClick
         )
 
     }  // end of Surface
@@ -120,8 +118,8 @@ fun MyColumn(
     descriptionID: Int,
     currentStep: Int,
     squeezeCount: Int,
-    click: () -> Unit)
-{
+    click: () -> Unit
+) {
 
 
     // "LEMONADE" title bar w/yellow background
@@ -143,6 +141,7 @@ fun MyColumn(
             TextStringDebug(step = currentStep, count = squeezeCount)
     }
 
+    // Step action command and clickable image
     Column (
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
@@ -152,7 +151,7 @@ fun MyColumn(
         ImageDrawable(
             imageID = imageID,
             descriptionID = descriptionID,
-            click =  click
+            click = click
         )
 
         Spacer(modifier = Modifier.height(16.dp))
@@ -162,6 +161,19 @@ fun MyColumn(
     }  // end of Column
 }  // end of myColumn()
 
+@Composable
+fun ImageDrawable(imageID: Int,
+                  descriptionID: Int,
+                  click: () -> Unit)
+{
+    Image(
+        painter = painterResource(imageID),
+        contentDescription = stringResource(descriptionID),
+        modifier = Modifier.wrapContentSize()
+                           .background(MaterialTheme.colors.secondary)
+                           .clickable { click() }
+    )
+}
 
 @Composable
 fun TextString(textID: Int,
@@ -177,22 +189,9 @@ fun TextString(textID: Int,
 
 @Composable
 fun TextStringDebug(step: Int, count: Int) {
-    when (step) {
-        2 -> Text(text = "currentStep = $step : squeezeCount = $count")
-        else -> Text(text = "currentStep = $step")
+    Text(text = "currentStep  = $step")
+    if (step == 2) {
+        Spacer(modifier = Modifier.height(6.dp))
+        Text(text = "squeezeCount = $count")
     }
-}
-
-@Composable
-fun ImageDrawable(imageID: Int,
-                  descriptionID: Int,
-                  click: () -> Unit)
-{
-    Image(
-        painter = painterResource(imageID),
-        contentDescription = stringResource(descriptionID),
-        modifier = Modifier.wrapContentSize()
-                           .background(MaterialTheme.colors.secondary)
-                           .clickable { click() }
-    )
 }
