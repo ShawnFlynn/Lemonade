@@ -23,10 +23,14 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.example.lemonade.R.*
 import com.example.lemonade.ui.theme.LemonadeTheme
 
 const val DEBUG = true
@@ -36,17 +40,17 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         setContent {
             LemonadeTheme {
-                LemonApp()
+                LemonadeApp()
             }
         }
     }
 }
 
 @Composable
-fun LemonApp() {
+fun LemonadeApp() {
 
     var currentStep  by rememberSaveable { mutableIntStateOf(1) }
-    var squeezeCount by rememberSaveable { mutableIntStateOf(0) }
+    var squeezeCount by rememberSaveable { mutableIntStateOf(1) }
 
     val stepUp:    () -> Unit = { if (currentStep == 4) currentStep = 1 else currentStep++ }
     val countDown: () -> Unit = { squeezeCount-- }
@@ -65,26 +69,26 @@ fun LemonApp() {
     // Setup step specific data
     when (currentStep) {
         1 -> {  // Start
-            actionID = R.string.tap_lemon_tree
-            imageID = R.drawable.lemon_tree
-            descriptionID = R.string.lemon_tree_string
+            actionID = string.tap_lemon_tree
+            imageID = drawable.lemon_tree
+            descriptionID = string.lemon_tree_string
 
             squeezeCount = (1..4).random()
         }
         3 -> {  // Serve
-            actionID = R.string.glass_of_lemonade
-            imageID = R.drawable.lemon_drink
-            descriptionID = R.string.glass_of_lemonade
+            actionID = string.glass_of_lemonade
+            imageID = drawable.lemon_drink
+            descriptionID = string.glass_of_lemonade
         }
         4 -> {  // Restart
-            actionID = R.string.tap_empty_glass
-            imageID = R.drawable.lemon_restart
-            descriptionID = R.string.empty_glass
+            actionID = string.tap_empty_glass
+            imageID = drawable.lemon_restart
+            descriptionID = string.empty_glass
         }
         else -> {  // Squeeze (2)
-            actionID = R.string.tap_lemon
-            imageID = R.drawable.lemon_squeeze
-            descriptionID = R.string.lemon_string
+            actionID = string.tap_lemon
+            imageID = drawable.lemon_squeeze
+            descriptionID = string.lemon_string
         }
     }
 
@@ -127,9 +131,10 @@ fun MyColumn(
 
         // "LEMONADE" title
         TextString(
-            textID = R.string.app_name,
-            modifier = Modifier.fillMaxWidth()
-                               .background(MaterialTheme.colors.primary)
+            textID = string.app_name,
+            modifier = Modifier
+                .fillMaxWidth()
+                .background(MaterialTheme.colors.primary)
         )
 
         // DEBUG text
@@ -165,19 +170,28 @@ fun ImageDrawable(imageID: Int,
     Image(
         painter = painterResource(imageID),
         contentDescription = stringResource(descriptionID),
-        modifier = Modifier.wrapContentSize()
-                           .background(MaterialTheme.colors.secondary)
-                           .clickable { click() }
+        modifier = Modifier
+            .wrapContentSize()
+            .background(MaterialTheme.colors.secondary)
+            .clickable { click() }
     )
 }
 
 @Composable
-fun TextString(textID: Int,
-               modifier: Modifier = Modifier,
+fun TextString(modifier: Modifier = Modifier,
+               textID: Int = 0,
+               textStr: String = "",
+               textSize: TextUnit = 20.sp,
                alignment: TextAlign = TextAlign.Center) {
 
+    val textRef: String = if (textStr == "")
+        stringResource(id = textID)
+    else
+        textStr
+
     Text(
-        text = stringResource(textID),
+        text = textRef,
+        fontSize = textSize,
         textAlign = alignment,
         modifier = modifier
     )
@@ -185,9 +199,16 @@ fun TextString(textID: Int,
 
 @Composable
 fun TextStringDebug(step: Int, count: Int) {
-    Text(text = "currentStep  = $step")
+    Spacer(modifier = Modifier.height(6.dp))
+    TextString(textStr = "currentStep  = $step",
+               textSize = 12.sp,
+               modifier = Modifier.background(color = colorResource(id = R.color.currentStep))
+    )
     if (step == 2) {
         Spacer(modifier = Modifier.height(6.dp))
-        Text(text = "squeezeCount = $count")
+        TextString(textStr = "squeezeCount = $count",
+                   textSize = 12.sp,
+                   modifier = Modifier.background(color = colorResource(id = R.color.squeezeCount))
+        )
     }
 }

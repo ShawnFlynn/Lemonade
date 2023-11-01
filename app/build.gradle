@@ -37,7 +37,8 @@ android {
         compose true
     }
     composeOptions {
-        kotlinCompilerExtensionVersion "$compose_ui_version"
+        kotlinCompilerExtensionVersion "1.5.3"
+//        kotlinCompilerExtensionVersion "$compose_ui_version"
     }
     packagingOptions {
         resources {

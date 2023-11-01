@@ -13,17 +13,16 @@ private val DarkColorPalette = darkColors(
 )
 
 private val LightColorPalette = lightColors(
-    primary = Title,
-    primaryVariant = Dirty,
-    secondary = Teal
-//    secondary = Teal200
+    primary = Title,    // Main color = Lemon Yellow
+    onPrimary = Text,   // text color for primary = Black
+    primaryVariant = Dirty, // Darker primary = Dirty Yellow
+    secondary = Teal,       // Secondary surfaces
+    onSecondary = Text,
+    background = White,     // App background
+    onBackground = Text     // Text for background
 
     /* Other default colors to override
-    background = Color.White,
     surface = Color.White,
-    onPrimary = Color.White,
-    onSecondary = Color.Black,
-    onBackground = Color.Black,
     onSurface = Color.Black,
     */
 )
