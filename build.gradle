@@ -2,7 +2,7 @@ buildscript {
     ext {
         compose_ui_version = '1.5.4'
         kotlin_version = '1.9.10'
-        android_version = '8.3.0-alpha11'
+        android_version = '8.3.0-alpha12'
     }
 }// Top-level build file where you can add configuration options common to all sub-projects/modules.
 plugins {
