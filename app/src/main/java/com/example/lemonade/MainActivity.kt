@@ -3,6 +3,8 @@ package com.example.lemonade
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.annotation.DrawableRes
+import androidx.annotation.StringRes
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -62,9 +64,9 @@ fun LemonadeApp() {
         }
     }
 
-    val actionID: Int
-    val descriptionID: Int
-    val imageID: Int
+    @StringRes val actionID: Int
+    @StringRes val descriptionID: Int
+    @DrawableRes val imageID: Int
 
     // Setup step specific data
     when (currentStep) {
@@ -114,9 +116,9 @@ fun LemonadeApp() {
 
 @Composable
 fun MyColumn(
-    textID: Int,
-    imageID: Int,
-    descriptionID: Int,
+    @StringRes textID: Int,
+    @DrawableRes imageID: Int,
+    @StringRes descriptionID: Int,
     currentStep: Int,
     squeezeCount: Int,
     click: () -> Unit
@@ -163,9 +165,10 @@ fun MyColumn(
 }  // end of myColumn()
 
 @Composable
-fun ImageDrawable(imageID: Int,
-                  descriptionID: Int,
-                  click: () -> Unit)
+fun ImageDrawable(
+    @DrawableRes imageID: Int,
+    @StringRes descriptionID: Int,
+    click: () -> Unit)
 {
     Image(
         painter = painterResource(imageID),
@@ -179,7 +182,7 @@ fun ImageDrawable(imageID: Int,
 
 @Composable
 fun TextString(modifier: Modifier = Modifier,
-               textID: Int = 0,
+               @StringRes textID: Int = 0,
                textStr: String = "",
                textSize: TextUnit = 20.sp,
                alignment: TextAlign = TextAlign.Center) {
@@ -202,13 +205,13 @@ fun TextStringDebug(step: Int, count: Int) {
     Spacer(modifier = Modifier.height(6.dp))
     TextString(textStr = "currentStep  = $step",
                textSize = 12.sp,
-               modifier = Modifier.background(color = colorResource(id = R.color.currentStep))
+               modifier = Modifier.background(color = colorResource(id = color.currentStep))
     )
     if (step == 2) {
         Spacer(modifier = Modifier.height(6.dp))
         TextString(textStr = "squeezeCount = $count",
                    textSize = 12.sp,
-                   modifier = Modifier.background(color = colorResource(id = R.color.squeezeCount))
+                   modifier = Modifier.background(color = colorResource(id = color.squeezeCount))
         )
     }
 }
